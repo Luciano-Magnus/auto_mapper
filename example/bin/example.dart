@@ -1,6 +1,7 @@
 import 'package:auto_mapper/auto_mapper.dart';
 import 'package:example/auto_mapper.dart';
 import 'package:example/dtos/box_dto.dart';
+import 'package:example/dtos/class_teste.dart';
 import 'package:example/dtos/container_dto.dart';
 import 'package:example/dtos/item_dto.dart';
 import 'package:example/dtos/warehouse_dto.dart';

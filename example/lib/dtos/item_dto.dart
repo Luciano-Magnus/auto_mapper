@@ -1,4 +1,5 @@
 import 'package:auto_mapper/auto_mapper.dart';
+import 'package:example/dtos/class_teste.dart';
 import 'package:example/entity/item_entity.dart';
 import 'package:example/enums/status.dart';
 
@@ -44,29 +45,6 @@ class ItemDto {
       status: $status,
       metadata: $metadata,
       additionalInfo: $additionalInfo,
-      test: $test
-    }
-    ''';
-  }
-}
-
-class ClassTest {
-  final int id;
-  final String name;
-  final bool isTest;
-  final List<ClassTest> items;
-  final ClassTest? test;
-
-  const ClassTest({required this.id, required this.name, this.isTest = true, this.items = const [], this.test});
-
-  @override
-  String toString() {
-    return '''
-    ClassTest {
-      id: $id,
-      name: $name,
-      isTest: $isTest,
-      items: $items,
       test: $test
     }
     ''';

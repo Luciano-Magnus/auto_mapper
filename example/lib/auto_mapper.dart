@@ -9,6 +9,7 @@ import 'package:example/entity/item_entity.dart';
 import 'package:example/dtos/item_dto.dart';
 import 'package:example/entity/warehouse_entity.dart';
 import 'package:example/dtos/warehouse_dto.dart';
+import 'package:example/dtos/class_teste.dart';
 
 class GeneratedMappings {
   static void register() {

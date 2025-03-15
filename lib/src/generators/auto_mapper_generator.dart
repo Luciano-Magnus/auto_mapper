@@ -112,7 +112,7 @@ class AutoMapperGenerator extends Builder {
                 }
               }
             } else {
-              return '${field.name}: ${_defaultValueForField(field)},';
+              return '${field.name}: ${_defaultValueForField(field, imports)},';
             }
           }).join('\n')}
           )
@@ -133,7 +133,7 @@ class AutoMapperGenerator extends Builder {
     return buffer.toString();
   }
 
-  String _defaultValueForField(FieldElement field) {
+  String _defaultValueForField(FieldElement field, List<String> imports) {
     final annotation = field.metadata.where(
           (meta) => meta.computeConstantValue()?.type?.getDisplayString(withNullability: false) == 'AutoMapFieldValue'
     ).firstOrNull;
@@ -142,19 +142,15 @@ class AutoMapperGenerator extends Builder {
       final defaultValue = annotation.computeConstantValue()?.getField('defaultValue');
 
 
-      return defaultValue != null ? "${_getValueFromType(defaultValue)}" : 'null';
+      return defaultValue != null ? "${_getValueFromType(defaultValue, imports)}" : 'null';
     }
     return 'null';
   }
 
-  dynamic _getValueFromType(DartObject value) {
+  dynamic _getValueFromType(DartObject value, List<String> imports) {
     if (value.isNull) {
       return null;
     }
-
-    print('********TYPE*********');
-    print(value.toRecordValue());
-    print('*****************');
 
     if (value.toBoolValue() != null) {
       return value.toBoolValue();
@@ -177,12 +173,11 @@ class AutoMapperGenerator extends Builder {
     }
 
     if (value.toListValue() != null) {
-      print('********LIST*********');
 
       final list = value.toListValue() ?? [];
 
       final values = list.map((item) {
-        return _getValueFromType(item);
+        return _getValueFromType(item, imports);
       }).join(', ');
 
       return '[$values]';
@@ -198,11 +193,23 @@ class AutoMapperGenerator extends Builder {
       final className = interfaceType.element.name;
       final fields = interfaceType.element.fields;
 
+      // Pega o import do arquivo
+      final import = value.type?.element?.librarySource?.uri.toString();
+
+      if (import != null) {
+        final importStatement = "import '$import';";
+
+        if (!imports.contains(importStatement)) {
+          imports.add(importStatement);
+        }
+      }
+
+
       final fieldValues = fields.map((field) {
         final fieldValue = value.getField(field.name);
 
         if (fieldValue != null) {
-          final fieldValueString = _getValueFromType(fieldValue);
+          final fieldValueString = _getValueFromType(fieldValue, imports);
 
           return '${field.name}: $fieldValueString';
         }
