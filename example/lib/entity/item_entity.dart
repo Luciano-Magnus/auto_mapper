@@ -16,7 +16,7 @@ class ItemEntity {
     required this.quantity,
     required this.isAvailable,
     required this.status,
-    this.metadata,
+    required this.metadata,
     required this.additionalInfo,
   });
 

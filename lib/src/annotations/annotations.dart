@@ -12,3 +12,14 @@ class AutoMap {
   /// The [target] parameter must not be null.
   const AutoMap({required this.target});
 }
+
+/// An annotation used to specify the default value for a field during automatic mapping.
+class AutoMapFieldValue {
+  /// The default value for the field.
+  final dynamic defaultValue;
+
+  /// Creates an instance of the [AutoMapFieldValue] annotation with the specified default value and field name.
+  ///
+  /// The [defaultValue] and [name] parameters must not be null.
+  const AutoMapFieldValue({required this.defaultValue});
+}

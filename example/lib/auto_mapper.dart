@@ -74,6 +74,34 @@ class GeneratedMappings {
         status: source.status,
         metadata: source.metadata,
         additionalInfo: source.additionalInfo,
+        test: ClassTest(
+          id: 1,
+          name: "test 1234",
+          isTest: true,
+          items: [
+            ClassTest(
+              id: 2,
+              name: "name 1",
+              isTest: true,
+              items: [],
+              test: null,
+            ),
+            ClassTest(
+              id: 3,
+              name: "name 2",
+              isTest: true,
+              items: [],
+              test: null,
+            ),
+          ],
+          test: ClassTest(
+            id: 4,
+            name: "name 3",
+            isTest: true,
+            items: [],
+            test: null,
+          ),
+        ),
       ),
     );
 

@@ -62,11 +62,12 @@ class AutoMapperGenerator extends Builder {
 
       if (annotation != null) {
         final targetType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
+        final targetClassElement = annotation.getField('target')?.toTypeValue()?.element as ClassElement?;
         final targetImport = annotation.getField('target')?.toTypeValue()?.element?.librarySource?.uri.toString();
 
         final classImport = element.source.uri.toString();
 
-        if (targetType != null) {
+        if (targetType != null && targetClassElement != null) {
           String import = "import '$targetImport';";
 
           if (!imports.contains(import)) {
@@ -80,42 +81,43 @@ class AutoMapperGenerator extends Builder {
           }
 
           mappings.add('''
-            add<${element.name}, $targetType>(
-              (${element.name} source) => $targetType(
-                ${element.fields.map((field) {
-            //Verifica se o campo é uma lista de objetos
-            if (field.type.isDartCoreList) {
-              final type = field.type as ParameterizedType;
+        add<${element.name}, $targetType>(
+          (${element.name} source) => $targetType(
+            ${targetClassElement.fields.map((field) {
+            final sourceField = element.fields.where((f) => f.name == field.name).firstOrNull;
 
-              final typeArguments = type.typeArguments;
-              final typeArgument = typeArguments.first;
+            if (sourceField != null) {
+              if (sourceField.type.isDartCoreList) {
+                final type = sourceField.type as ParameterizedType;
+                final typeArgument = type.typeArguments.first;
 
-              if (typeArgument.element is ClassElement) {
-                final classElement = typeArgument.element as ClassElement;
-                final annotation = _getAutoMapAnnotation(classElement);
+                if (typeArgument.element is ClassElement) {
+                  final classElement = typeArgument.element as ClassElement;
+                  final annotation = _getAutoMapAnnotation(classElement);
+
+                  if (annotation != null) {
+                    final targetChildType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
+
+                    return '${field.name}: source.${sourceField.name}.map((item) => AutoMapper.convert<${classElement.name}, $targetChildType>(item)).toList(),';
+                  }
+                }
+              } else {
+                final annotation = sourceField.type.element is ClassElement ? _getAutoMapAnnotation(sourceField.type.element as ClassElement) : null;
 
                 if (annotation != null) {
                   final targetChildType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
-
-                  return '${field.name}: source.${field.name}.map((item) => AutoMapper.convert<${classElement.name}, $targetChildType>(item)).toList()';
+                  return '${field.name}: AutoMapper.convert<${sourceField.type.element?.name ?? ''}, $targetChildType>(source.${sourceField.name}),';
+                } else {
+                  return '${field.name}: source.${sourceField.name},';
                 }
               }
             } else {
-              //Verifica se o campo é um objeto com a anotação AutoMap
-              final annotation = field.type.element is ClassElement ? _getAutoMapAnnotation(field.type.element as ClassElement) : null;
-
-              if (annotation != null) {
-                final targetChildType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
-
-                return '${field.name}: AutoMapper.convert<${field.type.element?.name ?? ''}, $targetChildType>(source.${field.name})';
-              } else {
-                return '${field.name}: source.${field.name}';
-              }
+              return '${field.name}: ${_defaultValueForField(field)},';
             }
-          }).join(',\n')}
-              )
-            );
-          ''');
+          }).join('\n')}
+          )
+        );
+      ''');
         }
       }
     }
@@ -129,6 +131,88 @@ class AutoMapperGenerator extends Builder {
     }
 
     return buffer.toString();
+  }
+
+  String _defaultValueForField(FieldElement field) {
+    final annotation = field.metadata.where(
+          (meta) => meta.computeConstantValue()?.type?.getDisplayString(withNullability: false) == 'AutoMapFieldValue'
+    ).firstOrNull;
+
+    if (annotation != null) {
+      final defaultValue = annotation.computeConstantValue()?.getField('defaultValue');
+
+
+      return defaultValue != null ? "${_getValueFromType(defaultValue)}" : 'null';
+    }
+    return 'null';
+  }
+
+  dynamic _getValueFromType(DartObject value) {
+    if (value.isNull) {
+      return null;
+    }
+
+    print('********TYPE*********');
+    print(value.toRecordValue());
+    print('*****************');
+
+    if (value.toBoolValue() != null) {
+      return value.toBoolValue();
+    }
+
+    if (value.toIntValue() != null) {
+      return value.toIntValue();
+    }
+
+    if (value.toDoubleValue() != null) {
+      return value.toDoubleValue();
+    }
+
+    if (value.toStringValue() != null) {
+      return '"${value.toStringValue()}"';
+    }
+
+    if (value.toSymbolValue() != null) {
+      return value.toSymbolValue();
+    }
+
+    if (value.toListValue() != null) {
+      print('********LIST*********');
+
+      final list = value.toListValue() ?? [];
+
+      final values = list.map((item) {
+        return _getValueFromType(item);
+      }).join(', ');
+
+      return '[$values]';
+    }
+
+    if (value.toMapValue() != null) {
+      return value.toMapValue();
+    }
+
+    // Se for um objeto, retorna o valor do objeto
+    if (value.type is InterfaceType) {
+      final interfaceType = value.type as InterfaceType;
+      final className = interfaceType.element.name;
+      final fields = interfaceType.element.fields;
+
+      final fieldValues = fields.map((field) {
+        final fieldValue = value.getField(field.name);
+
+        if (fieldValue != null) {
+          final fieldValueString = _getValueFromType(fieldValue);
+
+          return '${field.name}: $fieldValueString';
+        }
+        return '${field.name}: null';
+      }).join(', ');
+
+      return '$className($fieldValues)';
+    }
+
+    return value.toSymbolValue();
   }
 
   DartObject? _getAutoMapAnnotation(ClassElement element) {

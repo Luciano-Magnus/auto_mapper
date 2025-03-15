@@ -20,6 +20,11 @@ void main() async {
       "specs": ["16GB RAM", "512GB SSD"],
     },
     additionalInfo: {"warranty": "2 years", "location": "Aisle 3"},
+    test: ClassTest(id: 1, name: 'Luciano', items: [
+      ClassTest(id: 2, name: 'Luciano 2'),
+      ClassTest(id: 3, name: 'Luciano 3', isTest: false, test: ClassTest(id: 4, name: 'Luciano 4')),
+      ],
+    ),
   );
 
   ContainerDto container = ContainerDto(items: [item1]);
