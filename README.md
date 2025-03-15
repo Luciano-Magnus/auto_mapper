@@ -8,6 +8,7 @@
 - 🔧 Utiliza anotações para mapear automaticamente os objetos.
 - ⚡ Suporte a listas, mapas e objetos aninhados.
 - 🛠 Integração com `build_runner` para geração de código otimizada.
+- ✨ Suporte a valores padrão para campos ausentes.
 
 ---
 
@@ -75,6 +76,49 @@ void main() async {
 }
 ```
 
+💚 Valores Padrão para Campos Ausentes
+
+Caso o objeto de origem não possua um campo presente no objeto de destino, você pode definir um valor padrão usando a anotação @AutoMapFieldValue.
+
+Exemplo:
+
+```dart
+@AutoMap(target: ItemEntity)
+class ItemDto {
+  String name;
+  int quantity;
+  bool isAvailable;
+  Status status;
+  dynamic metadata;
+  Map<String, dynamic> additionalInfo;
+
+  @AutoMapFieldValue(
+      defaultValue: const ClassTest(
+      id: 1,
+      name: 'test 1234',
+      items: [
+          ClassTest(id: 2, name: 'name 1'),
+          ClassTest(id: 3, name: 'name 2')
+        ],
+      test: ClassTest(id: 4, name: 'name 3'),
+      ),
+  )
+  ClassTest test;
+
+  ItemDto({
+    required this.name,
+    required this.quantity,
+    required this.isAvailable,
+    required this.status,
+    required this.metadata,
+    required this.additionalInfo,
+    required this.test,
+  });
+}
+```
+
+> [!NOTE]
+> No exemplo acima, caso o objeto de origem não possua o campo test, ele será preenchido com a instância padrão definida.
 ---
 
 ## 📜 Anotações Disponíveis
