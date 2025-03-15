@@ -1,4 +1,4 @@
-# AutoMapper for Dart
+# AutoMapper para Dart
 
 🚀 **AutoMapper for Dart** é uma biblioteca inspirada no AutoMapper do .NET, projetada para converter objetos entre diferentes tipos de forma automática e eficiente.
 
@@ -76,9 +76,9 @@ void main() async {
 }
 ```
 
-💚 Valores Padrão para Campos Ausentes
+### 💚 Valores Padrão para Campos Ausentes
 
-Caso o objeto de origem não possua um campo presente no objeto de destino, você pode definir um valor padrão usando a anotação @AutoMapFieldValue.
+Caso o objeto de origem não possua um campo presente no objeto de destino, você pode definir um valor padrão usando a anotação `@AutoMapFieldValue`.
 
 Exemplo:
 
@@ -124,6 +124,7 @@ class ItemDto {
 ## 📜 Anotações Disponíveis
 
 - `@AutoMap(target: EntityClass)`: Define que o DTO será convertido para a entidade especificada.
+- `@AutoMapFieldValue(defaultValue: value)`: Define um valor padrão para um campo ausente.
 
 ---
 
