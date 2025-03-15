@@ -2,6 +2,8 @@
 
 🚀 **AutoMapper for Dart** is a library inspired by .NET's AutoMapper, designed to automatically and efficiently convert objects between different types.
 
+📖 [Read this documentation in Portuguese](README.pt.md)
+
 ## 📌 Features
 
 - 🚀 Automatic conversion between DTOs and Entities.
