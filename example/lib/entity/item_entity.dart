@@ -1,4 +1,4 @@
-import 'package:auto_mapper/auto_mapper.dart';
+import 'package:auto_mapper/auto_mapper_annotation.dart';
 import 'package:example/dtos/item_dto.dart';
 import 'package:example/enums/status.dart';
 

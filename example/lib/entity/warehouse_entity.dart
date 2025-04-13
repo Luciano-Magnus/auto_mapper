@@ -1,4 +1,4 @@
-import 'package:auto_mapper/auto_mapper.dart';
+import 'package:auto_mapper/auto_mapper_annotation.dart';
 import 'package:example/dtos/warehouse_dto.dart';
 import 'package:example/entity/box_entity.dart';
 
