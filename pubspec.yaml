@@ -1,5 +1,5 @@
 name: auto_mapper
-description: "A new Flutter project."
+description: "Package to generate mappers for your models, using annotations and code generation."
 version: 1.0.1
 homepage: https://github.com/Luciano-Magnus/auto_mapper/blob/main/README.md
 
