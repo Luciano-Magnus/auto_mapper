@@ -1,7 +1,7 @@
 name: auto_mapper
 description: "A new Flutter project."
-version: 0.0.1
-homepage:
+version: 1.0.1
+homepage: https://github.com/Luciano-Magnus/auto_mapper/blob/main/README.md
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
