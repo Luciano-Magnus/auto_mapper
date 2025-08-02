@@ -1,14 +1,12 @@
 name: auto_mapper
 description: "Package to generate mappers for your models, using annotations and code generation."
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/Luciano-Magnus/auto_mapper/blob/main/README.md
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
 
 dependencies:
-  flutter:
-    sdk: flutter
   analyzer: ^7.3.0
   build: ^2.4.2
   dart_style: ^3.0.1
@@ -17,8 +15,4 @@ dependencies:
   path: ^1.9.1
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^3.0.0
-
-flutter:
