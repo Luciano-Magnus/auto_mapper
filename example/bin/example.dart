@@ -29,7 +29,7 @@ void main() async {
   );
 
   ContainerDto container = ContainerDto(items: [item1]);
-  BoxDto box = BoxDto(container: container);
+  BoxDto box = BoxDto(container: container, teste: ['example1', 'example2']);
   WarehouseDto warehouse = WarehouseDto(boxes: [box]);
 
   var warehouseEntity = AutoMapper.convert<WarehouseDto, WarehouseEntity>(warehouse);

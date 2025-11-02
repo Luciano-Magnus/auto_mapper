@@ -5,8 +5,12 @@ import 'package:example/entity/container_entity.dart';
 @AutoMap(target: BoxDto)
 class BoxEntity {
   ContainerEntity container;
+  List<String> teste;
 
-  BoxEntity({required this.container});
+  BoxEntity({
+    required this.container,
+    required this.teste,
+  });
 
   @override
   String toString() {

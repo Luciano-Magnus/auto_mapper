@@ -18,6 +18,7 @@ class GeneratedMappings {
         container: AutoMapper.convert<ContainerDto, ContainerEntity>(
           source.container,
         ),
+        teste: source.teste,
       ),
     );
 
@@ -55,6 +56,7 @@ class GeneratedMappings {
         container: AutoMapper.convert<ContainerEntity, ContainerDto>(
           source.container,
         ),
+        teste: source.teste,
       ),
     );
 

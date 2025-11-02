@@ -61,7 +61,7 @@ class AutoMapperGenerator extends Builder {
       final annotation = _getAutoMapAnnotation(element);
 
       if (annotation != null) {
-        final targetType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
+        final targetType = annotation.getField('target')?.toTypeValue()?.getDisplayString();
         final targetClassElement = annotation.getField('target')?.toTypeValue()?.element as ClassElement?;
         final targetImport = annotation.getField('target')?.toTypeValue()?.element?.librarySource?.uri.toString();
 
@@ -83,38 +83,7 @@ class AutoMapperGenerator extends Builder {
           mappings.add('''
         add<${element.name}, $targetType>(
           (${element.name} source) => $targetType(
-            ${targetClassElement.fields.map((field) {
-            final sourceField = element.fields.where((f) => f.name == field.name).firstOrNull;
-
-            if (sourceField != null) {
-              if (sourceField.type.isDartCoreList) {
-                final type = sourceField.type as ParameterizedType;
-                final typeArgument = type.typeArguments.first;
-
-                if (typeArgument.element is ClassElement) {
-                  final classElement = typeArgument.element as ClassElement;
-                  final annotation = _getAutoMapAnnotation(classElement);
-
-                  if (annotation != null) {
-                    final targetChildType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
-
-                    return '${field.name}: source.${sourceField.name}.map((item) => AutoMapper.convert<${classElement.name}, $targetChildType>(item)).toList(),';
-                  }
-                }
-              } else {
-                final annotation = sourceField.type.element is ClassElement ? _getAutoMapAnnotation(sourceField.type.element as ClassElement) : null;
-
-                if (annotation != null) {
-                  final targetChildType = annotation.getField('target')?.toTypeValue()?.getDisplayString(withNullability: false);
-                  return '${field.name}: AutoMapper.convert<${sourceField.type.element?.name ?? ''}, $targetChildType>(source.${sourceField.name}),';
-                } else {
-                  return '${field.name}: source.${sourceField.name},';
-                }
-              }
-            } else {
-              return '${field.name}: ${_defaultValueForField(field, imports)},';
-            }
-          }).join('\n')}
+            ${_buildConstructorArgs(element, targetClassElement, imports)}
           )
         );
       ''');
@@ -133,9 +102,76 @@ class AutoMapperGenerator extends Builder {
     return buffer.toString();
   }
 
+  // Monta os argumentos com base no construtor (suporta nomeados e posicionais). Fallback: usa fields se não houver construtor.
+  String _buildConstructorArgs(ClassElement sourceClass, ClassElement targetClass, List<String> imports) {
+    final constructor = targetClass.unnamedConstructor;
+
+    String buildValue(String paramOrFieldName, DartType targetParamType) {
+      final sourceField = sourceClass.fields.where((f) => f.name == paramOrFieldName).firstOrNull;
+
+      if (sourceField != null) {
+        // List<T>
+        if (sourceField.type.isDartCoreList) {
+          if (sourceField.type is ParameterizedType) {
+            final type = sourceField.type as ParameterizedType;
+            if (type.typeArguments.isNotEmpty) {
+              final typeArgument = type.typeArguments.first;
+              if (typeArgument.element is ClassElement) {
+                final classElement = typeArgument.element as ClassElement;
+                final annotation = _getAutoMapAnnotation(classElement);
+                if (annotation != null) {
+                  final targetChildType = annotation.getField('target')?.toTypeValue()?.getDisplayString();
+                  return 'source.${sourceField.name}.map((item) => AutoMapper.convert<${classElement.name}, $targetChildType>(item)).toList()';
+                }
+              }
+            }
+          }
+          // Caso padrão: passa o campo diretamente (ex.: List<String>, List<int>, enums ou List sem anotação)
+          return 'source.${sourceField.name}';
+        }
+
+        // Tipo complexo com @AutoMap
+        final ann = sourceField.type.element is ClassElement ? _getAutoMapAnnotation(sourceField.type.element as ClassElement) : null;
+        if (ann != null) {
+          final targetChildType = ann.getField('target')?.toTypeValue()?.getDisplayString();
+          return 'AutoMapper.convert<${sourceField.type.element?.name ?? ''}, $targetChildType>(source.${sourceField.name})';
+        }
+
+        // Tipos simples/pass-through
+        return 'source.${sourceField.name}';
+      }
+
+      // Se não encontrou o field na origem, tenta default pelo field do alvo (para suportar @AutoMapFieldValue)
+      final targetField = targetClass.fields.where((f) => f.name == paramOrFieldName).firstOrNull;
+      if (targetField != null) {
+        return _defaultValueForField(targetField, imports);
+      }
+      return 'null';
+    }
+
+    if (constructor != null) {
+      // Usa os parâmetros do construtor (posicionais e nomeados)
+      final args = constructor.parameters.map((param) {
+        final value = buildValue(param.name, param.type);
+        if (param.isNamed) {
+          return '${param.name}: ' + value + ',';
+        } else {
+          return value + ',';
+        }
+      }).join('\n');
+      return args;
+    }
+
+    // Fallback: usa os fields do alvo como nomeados
+    return targetClass.fields.map((field) {
+      final value = buildValue(field.name, field.type);
+      return '${field.name}: ' + value + ',';
+    }).join('\n');
+  }
+
   String _defaultValueForField(FieldElement field, List<String> imports) {
     final annotation = field.metadata.where(
-          (meta) => meta.computeConstantValue()?.type?.getDisplayString(withNullability: false) == 'AutoMapFieldValue'
+          (meta) => meta.computeConstantValue()?.type?.getDisplayString() == 'AutoMapFieldValue'
     ).firstOrNull;
 
     if (annotation != null) {
@@ -226,7 +262,7 @@ class AutoMapperGenerator extends Builder {
     return element.metadata.map((meta) {
       return meta.computeConstantValue();
     }).firstWhere((value) {
-      return value?.type?.getDisplayString(withNullability: false) == 'AutoMap';
+      return value?.type?.getDisplayString() == 'AutoMap';
     }, orElse: () => null);
   }
 

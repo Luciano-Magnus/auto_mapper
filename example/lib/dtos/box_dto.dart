@@ -5,11 +5,15 @@ import 'package:example/entity/box_entity.dart';
 @AutoMap(target: BoxEntity)
 class BoxDto {
   ContainerDto container;
+  List<String> teste;
 
-  BoxDto({required this.container});
+  BoxDto({
+    required this.container,
+    required this.teste,
+  });
 
   @override
   String toString() {
-    return 'BoxDto{container: $container}';
+    return 'BoxDto{container: $container}, teste: $teste';
   }
 }
