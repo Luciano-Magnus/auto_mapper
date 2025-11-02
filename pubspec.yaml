@@ -1,6 +1,6 @@
 name: auto_mapper
 description: "Package to generate mappers for your models, using annotations and code generation."
-version: 1.0.2
+version: 1.0.5
 homepage: https://github.com/Luciano-Magnus/auto_mapper/blob/main/README.md
 
 environment:
