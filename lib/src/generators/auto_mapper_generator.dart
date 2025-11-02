@@ -226,8 +226,8 @@ class AutoMapperGenerator extends Builder {
     // Se for um objeto, retorna o valor do objeto
     if (value.type is InterfaceType) {
       final interfaceType = value.type as InterfaceType;
-      final className = interfaceType.element.name;
-      final fields = interfaceType.element.fields;
+      final element = interfaceType.element;
+      final className = element.name;
 
       // Pega o import do arquivo
       final import = value.type?.element?.librarySource?.uri.toString();
@@ -240,6 +240,19 @@ class AutoMapperGenerator extends Builder {
         }
       }
 
+      // Tratamento especial para enums: recupera o nome da constante a partir do campo 'index'
+      final indexObj = value.getField('index');
+      if (indexObj != null && indexObj.toIntValue() != null) {
+        final idx = indexObj.toIntValue()!;
+        final enumConstants = element.fields.where((f) => f.isEnumConstant).toList();
+        if (idx >= 0 && idx < enumConstants.length) {
+          final constName = enumConstants[idx].name;
+          return '$className.$constName';
+        }
+      }
+
+      // Caso não seja enum, monta a instância do objeto com seus campos
+      final fields = element.fields;
 
       final fieldValues = fields.map((field) {
         final fieldValue = value.getField(field.name);
