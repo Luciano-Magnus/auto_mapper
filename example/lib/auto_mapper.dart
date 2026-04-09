@@ -24,10 +24,9 @@ class GeneratedMappings {
 
     AutoMapper.add<ContainerDto, ContainerEntity>(
       (ContainerDto source) => ContainerEntity(
-        items:
-            source.items
-                .map((item) => AutoMapper.convert<ItemDto, ItemEntity>(item))
-                .toList(),
+        items: source.items
+            .map((item) => AutoMapper.convert<ItemDto, ItemEntity>(item))
+            .toList(),
       ),
     );
 
@@ -44,10 +43,9 @@ class GeneratedMappings {
 
     AutoMapper.add<WarehouseDto, WarehouseEntity>(
       (WarehouseDto source) => WarehouseEntity(
-        boxes:
-            source.boxes
-                .map((item) => AutoMapper.convert<BoxDto, BoxEntity>(item))
-                .toList(),
+        boxes: source.boxes
+            .map((item) => AutoMapper.convert<BoxDto, BoxEntity>(item))
+            .toList(),
       ),
     );
 
@@ -62,10 +60,9 @@ class GeneratedMappings {
 
     AutoMapper.add<ContainerEntity, ContainerDto>(
       (ContainerEntity source) => ContainerDto(
-        items:
-            source.items
-                .map((item) => AutoMapper.convert<ItemEntity, ItemDto>(item))
-                .toList(),
+        items: source.items
+            .map((item) => AutoMapper.convert<ItemEntity, ItemDto>(item))
+            .toList(),
       ),
     );
 
@@ -110,10 +107,9 @@ class GeneratedMappings {
 
     AutoMapper.add<WarehouseEntity, WarehouseDto>(
       (WarehouseEntity source) => WarehouseDto(
-        boxes:
-            source.boxes
-                .map((item) => AutoMapper.convert<BoxEntity, BoxDto>(item))
-                .toList(),
+        boxes: source.boxes
+            .map((item) => AutoMapper.convert<BoxEntity, BoxDto>(item))
+            .toList(),
       ),
     );
   }

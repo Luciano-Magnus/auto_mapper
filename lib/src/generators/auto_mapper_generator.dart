@@ -63,9 +63,9 @@ class AutoMapperGenerator extends Builder {
       if (annotation != null) {
         final targetType = annotation.getField('target')?.toTypeValue()?.getDisplayString();
         final targetClassElement = annotation.getField('target')?.toTypeValue()?.element as ClassElement?;
-        final targetImport = annotation.getField('target')?.toTypeValue()?.element?.librarySource?.uri.toString();
+        final targetImport = annotation.getField('target')?.toTypeValue()?.element?.library?.uri.toString();
 
-        final classImport = element.source.uri.toString();
+        final classImport = element.library.uri.toString();
 
         if (targetType != null && targetClassElement != null) {
           String import = "import '$targetImport';";
@@ -151,12 +151,12 @@ class AutoMapperGenerator extends Builder {
 
     if (constructor != null) {
       // Usa os parâmetros do construtor (posicionais e nomeados)
-      final args = constructor.parameters.map((param) {
-        final value = buildValue(param.name, param.type);
+      final args = constructor.formalParameters.map((param) {
+        final value = buildValue(param.name ?? '', param.type);
         if (param.isNamed) {
-          return '${param.name}: ' + value + ',';
+          return '${param.name}: $value,';
         } else {
-          return value + ',';
+          return '$value,';
         }
       }).join('\n');
       return args;
@@ -164,13 +164,13 @@ class AutoMapperGenerator extends Builder {
 
     // Fallback: usa os fields do alvo como nomeados
     return targetClass.fields.map((field) {
-      final value = buildValue(field.name, field.type);
-      return '${field.name}: ' + value + ',';
+      final value = buildValue(field.name ?? '', field.type);
+      return '${field.name}: $value,';
     }).join('\n');
   }
 
   String _defaultValueForField(FieldElement field, List<String> imports) {
-    final annotation = field.metadata.where(
+    final annotation = field.metadata.annotations.where(
           (meta) => meta.computeConstantValue()?.type?.getDisplayString() == 'AutoMapFieldValue'
     ).firstOrNull;
 
@@ -230,7 +230,7 @@ class AutoMapperGenerator extends Builder {
       final className = element.name;
 
       // Pega o import do arquivo
-      final import = value.type?.element?.librarySource?.uri.toString();
+      final import = value.type?.element?.library?.uri.toString();
 
       if (import != null) {
         final importStatement = "import '$import';";
@@ -255,7 +255,7 @@ class AutoMapperGenerator extends Builder {
       final fields = element.fields;
 
       final fieldValues = fields.map((field) {
-        final fieldValue = value.getField(field.name);
+        final fieldValue = value.getField(field.name ?? '');
 
         if (fieldValue != null) {
           final fieldValueString = _getValueFromType(fieldValue, imports);
@@ -272,7 +272,7 @@ class AutoMapperGenerator extends Builder {
   }
 
   DartObject? _getAutoMapAnnotation(ClassElement element) {
-    return element.metadata.map((meta) {
+    return element.metadata.annotations.map((meta) {
       return meta.computeConstantValue();
     }).firstWhere((value) {
       return value?.type?.getDisplayString() == 'AutoMap';
