@@ -1,13 +1,17 @@
 import 'package:auto_mapper/auto_mapper_annotation.dart';
+import 'package:example/dtos/base_dto.dart';
 import 'package:example/dtos/container_dto.dart';
 import 'package:example/entity/box_entity.dart';
 
 @AutoMap(target: BoxEntity)
-class BoxDto {
+class BoxDto extends BaseDto {
   ContainerDto container;
   List<String> teste;
 
   BoxDto({
+    required super.id,
+    required super.dataHoraCriado,
+    required super.dataHoraDeletado,
     required this.container,
     required this.teste,
   });

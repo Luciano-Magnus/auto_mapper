@@ -1,6 +1,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:auto_mapper/auto_mapper.dart';
 
+import 'package:example/entity/base_entity.dart';
+import 'package:example/dtos/base_dto.dart';
 import 'package:example/entity/box_entity.dart';
 import 'package:example/dtos/box_dto.dart';
 import 'package:example/entity/container_entity.dart';
@@ -13,8 +15,19 @@ import 'package:example/dtos/class_teste.dart';
 
 class GeneratedMappings {
   static void register() {
+    AutoMapper.add<BaseDto, BaseEntity>(
+      (BaseDto source) => BaseEntity(
+        id: source.id,
+        dataHoraCriado: source.dataHoraCriado,
+        dataHoraDeletado: source.dataHoraDeletado,
+      ),
+    );
+
     AutoMapper.add<BoxDto, BoxEntity>(
       (BoxDto source) => BoxEntity(
+        id: source.id,
+        dataHoraCriado: source.dataHoraCriado,
+        dataHoraDeletado: source.dataHoraDeletado,
         container: AutoMapper.convert<ContainerDto, ContainerEntity>(
           source.container,
         ),
@@ -49,8 +62,19 @@ class GeneratedMappings {
       ),
     );
 
+    AutoMapper.add<BaseEntity, BaseDto>(
+      (BaseEntity source) => BaseDto(
+        id: source.id,
+        dataHoraCriado: source.dataHoraCriado,
+        dataHoraDeletado: source.dataHoraDeletado,
+      ),
+    );
+
     AutoMapper.add<BoxEntity, BoxDto>(
       (BoxEntity source) => BoxDto(
+        id: source.id,
+        dataHoraCriado: source.dataHoraCriado,
+        dataHoraDeletado: source.dataHoraDeletado,
         container: AutoMapper.convert<ContainerEntity, ContainerDto>(
           source.container,
         ),

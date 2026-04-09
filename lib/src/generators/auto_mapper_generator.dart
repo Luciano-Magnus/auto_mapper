@@ -106,8 +106,28 @@ class AutoMapperGenerator extends Builder {
   String _buildConstructorArgs(ClassElement sourceClass, ClassElement targetClass, List<String> imports) {
     final constructor = targetClass.unnamedConstructor;
 
+    // Busca um field na hierarquia da classe (classe atual + supertipos),
+    // dando preferência ao field declarado na própria classe concreta.
+    FieldElement? _findFieldInHierarchy(InterfaceElement element, String name) {
+      // Primeiro tenta na própria classe
+      final ownField = element.fields.where((f) => f.name == name).firstOrNull;
+      if (ownField != null) {
+        return ownField;
+      }
+
+      // Depois procura nos supertipos, na ordem em que aparecem
+      for (final superType in element.allSupertypes) {
+        final superField = superType.element.fields.where((f) => f.name == name).firstOrNull;
+        if (superField != null) {
+          return superField;
+        }
+      }
+
+      return null;
+    }
+
     String buildValue(String paramOrFieldName, DartType targetParamType) {
-      final sourceField = sourceClass.fields.where((f) => f.name == paramOrFieldName).firstOrNull;
+      final sourceField = _findFieldInHierarchy(sourceClass, paramOrFieldName);
 
       if (sourceField != null) {
         // List<T>
@@ -142,7 +162,7 @@ class AutoMapperGenerator extends Builder {
       }
 
       // Se não encontrou o field na origem, tenta default pelo field do alvo (para suportar @AutoMapFieldValue)
-      final targetField = targetClass.fields.where((f) => f.name == paramOrFieldName).firstOrNull;
+      final targetField = _findFieldInHierarchy(targetClass, paramOrFieldName);
       if (targetField != null) {
         return _defaultValueForField(targetField, imports);
       }
