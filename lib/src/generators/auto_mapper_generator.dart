@@ -9,7 +9,10 @@ import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart' as p;
 
 class AutoMapperGenerator extends Builder {
-  final formatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
+  final formatter = DartFormatter(
+    languageVersion: DartFormatter.latestLanguageVersion,
+    pageWidth: 200,
+  );
 
   @override
   final Map<String, List<String>> buildExtensions = const {
@@ -153,8 +156,9 @@ class AutoMapperGenerator extends Builder {
         // Tipo complexo com @AutoMap
         final ann = sourceField.type.element is ClassElement ? _getAutoMapAnnotation(sourceField.type.element as ClassElement) : null;
         if (ann != null) {
-          final targetChildType = ann.getField('target')?.toTypeValue()?.getDisplayString();
-          return 'AutoMapper.convert<${sourceField.type.element?.name ?? ''}, $targetChildType>(source.${sourceField.name})';
+          final sourceChildType = sourceField.type.getDisplayString();
+          final targetChildType = targetParamType.getDisplayString();
+          return 'AutoMapper.convert<$sourceChildType, $targetChildType>(source.${sourceField.name})';
         }
 
         // Tipos simples/pass-through
