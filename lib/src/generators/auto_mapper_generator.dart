@@ -1,12 +1,13 @@
 import 'dart:async';
+
+import 'package:analyzer/dart/constant/value.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
-import 'package:glob/glob.dart';
-import 'package:source_gen/source_gen.dart';
-import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/constant/value.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:glob/glob.dart';
 import 'package:path/path.dart' as p;
+import 'package:source_gen/source_gen.dart';
 
 class AutoMapperGenerator extends Builder {
   final formatter = DartFormatter(
@@ -158,6 +159,13 @@ class AutoMapperGenerator extends Builder {
         if (ann != null) {
           final sourceChildType = sourceField.type.getDisplayString();
           final targetChildType = targetParamType.getDisplayString();
+
+          if (sourceChildType.endsWith('?')) {
+            final nullableSourceChildType = _ensureNullableTypeName(sourceChildType);
+            final nullableTargetChildType = _ensureNullableTypeName(targetChildType);
+            return 'source.${sourceField.name} == null ? null : AutoMapper.convert<$nullableSourceChildType, $nullableTargetChildType>(source.${sourceField.name})';
+          }
+
           return 'AutoMapper.convert<$sourceChildType, $targetChildType>(source.${sourceField.name})';
         }
 
@@ -301,6 +309,10 @@ class AutoMapperGenerator extends Builder {
     }).firstWhere((value) {
       return value?.type?.getDisplayString() == 'AutoMap';
     }, orElse: () => null);
+  }
+
+  String _ensureNullableTypeName(String typeName) {
+    return typeName.endsWith('?') ? typeName : '$typeName?';
   }
 
   AssetId _allFileOutput(BuildStep buildStep) {
