@@ -29,6 +29,10 @@ class AutoMapperGenerator extends Builder {
     final body = await buildStep //
         .findAssets(Glob('lib/**/*.dart'))
         .asyncExpand((assetId) async* {
+      // Ignora arquivos que não são bibliotecas Dart válidas (ex.: arquivos part gerados pelo MobX, etc.)
+      final isLibrary = await buildStep.resolver.isLibrary(assetId);
+      if (!isLibrary) return;
+
       final library = await buildStep.resolver.libraryFor(assetId);
       final reader = LibraryReader(library);
 
